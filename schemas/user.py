@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class UserData(BaseModel):
@@ -7,9 +7,9 @@ class UserData(BaseModel):
 
 
 class UserRegister(BaseModel):
-    name: str
-    email: str
-    password: str
+    name: str = Field(...)
+    email: str = Field(...)
+    password: str = Field(...)
 
 
 class UserLogin(BaseModel):
@@ -17,5 +17,7 @@ class UserLogin(BaseModel):
     password: str
 
 
-class Token(BaseModel):
+class LoginResponse(BaseModel):
     token: str
+    name: str
+    email: str

@@ -8,6 +8,5 @@ class PoolData(BaseModel):
 
 
 class AddPool(BaseModel):
-    user_email: str
     name: str
     sensor: List[str]
