@@ -1,15 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends
 from repository.user import UserRepository
-from models.user import User
 from schemas.user import UserData, UserLogin, UserRegister, Token
-from db.database import collection
+from db.database import collection_user
 
 from utils.auth import verify_password, create_access_token
+from typing import List
 
 user = APIRouter(prefix='/user', tags=['User'])
 
 
-@user.get('/all')
+@user.get('/all', response_model=List[UserData])
 async def get_all_user(file_repo: UserRepository = Depends(UserRepository)):
     users = await file_repo.get_all_user()
     return users
@@ -26,7 +26,7 @@ async def get_user_by_name(name: str, file_repo: UserRepository = Depends(UserRe
 
 @user.post('/register', response_model=UserData)
 async def register(data: UserRegister, file_repo: UserRepository = Depends(UserRepository)):
-    existing_user = await collection.find_one({'email': data.email})
+    existing_user = await collection_user.find_one({'email': data.email})
     if existing_user is not None:
         raise HTTPException(400, 'User already exist')
     response = await file_repo.register(data)
@@ -37,7 +37,7 @@ async def register(data: UserRegister, file_repo: UserRepository = Depends(UserR
 
 @user.post('/login', response_model=Token)
 async def login(data: UserLogin):
-    user = await collection.find_one({'email': data.email})
+    user = await collection_user.find_one({'email': data.email})
     if user is None:
         raise HTTPException(400, 'No user with the email found')
 
