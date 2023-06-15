@@ -1,7 +1,10 @@
+
 from pydantic import BaseModel, Field
+from bson import ObjectId
 
 
 class UserData(BaseModel):
+    id: str
     name: str
     email: str
 

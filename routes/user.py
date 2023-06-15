@@ -10,10 +10,10 @@ from middleware.auth import get_current_user
 user = APIRouter(prefix='/user', tags=['User'])
 
 
-# @user.get('/all', response_model=List[UserData])
-# async def get_all_user(file_repo: UserRepository = Depends(UserRepository)):
-#     users = await file_repo.get_all_user()
-#     return users
+@user.get('/all', response_model=List[UserData])
+async def get_all_user(file_repo: UserRepository = Depends(UserRepository)):
+    users = await file_repo.get_all_user()
+    return users
 
 
 @user.get('/me', response_model=UserData)
