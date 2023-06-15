@@ -10,7 +10,7 @@ password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Constants
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 3        # 3 hours
-ALGORITHM = "HS256"
+ALGORITHM = settings.ALGORITHM
 SECRET_KEY = settings.SECRET_KEY
 
 
