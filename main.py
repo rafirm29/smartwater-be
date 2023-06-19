@@ -1,6 +1,6 @@
 import asyncio
 import json
-from fastapi import FastAPI, WebSocket, Depends
+from fastapi import FastAPI, WebSocket, Depends, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from routes.routes import router
@@ -24,6 +24,14 @@ app.include_router(router)
 @app.get('/')
 def home():
     return {"data": "hello"}
+
+
+@app.post('/')
+async def antares(request: Request):
+    body = await request.body()
+    print(body)
+
+    return Response(status_code=200)
 
 
 async def get_dummy_data(data):
