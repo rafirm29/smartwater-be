@@ -33,3 +33,23 @@ class PoolRepository():
         if update_result:
             return True
         return False
+
+    async def update_name(self, pool: Pool, new_name: str):
+        update_result = await collection_pool.update_one(
+            {'id': pool['id']},
+            {"$set": {"name": new_name}}
+        )
+
+        if update_result:
+            return True
+        return False
+
+    async def set_normal(self, pool: Pool):
+        update_result = await collection_pool.update_one(
+            {'id': pool['id']},
+            {"$set": {"anomaly": []}}
+        )
+
+        if update_result:
+            return True
+        return False

@@ -1,14 +1,14 @@
 from pydantic import BaseModel
 from typing import List
 
-from models.pool import StatusEnum
+from models.pool import StatusEnum, Anomaly
 
 
 class PoolData(BaseModel):
     id: str
     name: str
     status: StatusEnum
-    anomaly: int
+    anomaly: List[Anomaly]
     sensor: List[str]
 
 
@@ -19,3 +19,7 @@ class AddPool(BaseModel):
 
 class AddSensor(BaseModel):
     sensor: List[str]
+
+
+class UpdatePoolName(BaseModel):
+    name: str

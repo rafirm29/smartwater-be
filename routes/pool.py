@@ -3,7 +3,7 @@ from typing import List
 
 from middleware.auth import get_current_user
 from repository.pool import PoolRepository
-from schemas.pool import PoolData, AddPool, AddSensor
+from schemas.pool import PoolData, AddPool, AddSensor, UpdatePoolName
 from schemas.user import UserData
 
 
@@ -29,7 +29,7 @@ async def add_pool(pool: AddPool, user: UserData = Depends(get_current_user), po
     response = await pool_repo.add_pool(document)
     if response:
         return response
-    raise HTTPException(404, f"No pools found")
+    raise HTTPException(400, f"Failed to add pool")
 
 
 @pool.post('/{pool_id}/add-sensor')
@@ -50,3 +50,43 @@ async def add_sensor(pool_id: str, sensor: AddSensor, user: UserData = Depends(g
             'message': 'Successfully add sensor(s)'
         }
     raise HTTPException(status_code=400, detail='Failed to update pool')
+
+
+@pool.put('/{pool_id}/change-name')
+async def change_pool_name(pool_id: str, new_name: UpdatePoolName, user: UserData = Depends(get_current_user), pool_repo: PoolRepository = Depends(PoolRepository)):
+    pool = await pool_repo.get_pool_by_id(pool_id)
+
+    if pool is None:
+        raise HTTPException(404, f"No pool found. Invalid pool id")
+
+    if pool['user_email'] != user['email']:
+        raise HTTPException(
+            401, f"You are not authenticated to update this pool")
+
+    response = await pool_repo.update_name(pool, new_name.name)
+
+    if response:
+        return {
+            'message': f"Successfully update pool name to '{new_name.name}'"
+        }
+    raise HTTPException(status_code=400, detail='Failed to change pool name')
+
+
+@pool.put('/{pool_id}/set-normal')
+async def set_pool_normal(pool_id: str, user: UserData = Depends(get_current_user), pool_repo: PoolRepository = Depends(PoolRepository)):
+    pool = await pool_repo.get_pool_by_id(pool_id)
+
+    if pool is None:
+        raise HTTPException(404, f"No pool found. Invalid pool id")
+
+    if pool['user_email'] != user['email']:
+        raise HTTPException(
+            401, f"You are not authenticated to update this pool")
+
+    response = await pool_repo.set_normal(pool)
+
+    if response:
+        return {
+            'message': f"Successfully done action to pool"
+        }
+    raise HTTPException(status_code=400, detail='Failed to do action to pool')
