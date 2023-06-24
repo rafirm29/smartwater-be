@@ -24,3 +24,7 @@ class LoginResponse(BaseModel):
     token: str
     name: str
     email: str
+
+
+class UserChangeName(BaseModel):
+    name: str

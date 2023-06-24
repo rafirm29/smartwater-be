@@ -30,3 +30,13 @@ class UserRepository():
 
         await collection_user.insert_one(user_doc)
         return user_doc
+
+    async def change_name(self, email: str, new_name: str):
+        update_result = await collection_user.update_one(
+            {'email': email},
+            {"$set": {"name": new_name}}
+        )
+
+        if update_result:
+            return True
+        return False
