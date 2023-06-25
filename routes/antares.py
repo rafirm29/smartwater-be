@@ -55,6 +55,7 @@ async def receive_sensor_data(user_email: str, request: Request, user_repo: User
             print(response_notif.json())
         else:
             print('Failed to send notification')
+            print(response_notif.json())
     else:
         print('Failed to find user with email/device id')
 
