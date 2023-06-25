@@ -36,9 +36,9 @@ def send_notification(device_token: str, payload: Notification):
                 "title": payload.title,
                 "body": payload.body
             },
-            "android": {
-                "priority": "5"
-            },
+            # "android": {
+            #     "priority": "5"
+            # },
         }
     }
     response = requests.post(
