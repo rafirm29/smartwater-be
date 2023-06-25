@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from typing import Optional
 from bson import ObjectId
 
 
@@ -7,6 +8,7 @@ class User(BaseModel):
     name: str
     email: str
     password: str
+    device_id: Optional[str] = None
 
     class Config:
         arbitrary_types_allowed = True

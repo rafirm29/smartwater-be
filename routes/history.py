@@ -1,11 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 
-from middleware.auth import get_current_user
 from repository.history import HistoryRepository
 from models.history import DataPoint
 from schemas.history import HistoryData, SensorData
-from schemas.user import UserData
 
 
 history = APIRouter(prefix='/history', tags=['History'])

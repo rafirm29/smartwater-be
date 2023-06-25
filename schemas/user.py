@@ -18,6 +18,7 @@ class UserRegister(BaseModel):
 class UserLogin(BaseModel):
     email: str
     password: str
+    device_id: str
 
 
 class LoginResponse(BaseModel):

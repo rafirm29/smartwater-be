@@ -46,6 +46,14 @@ async def login(data: UserLogin):
             400, 'Incorrect email or password'
         )
 
+    update_device = await collection_user.update_one(
+        {'email': user['email']},
+        {"$set": {"device_id": data.device_id}}
+    )
+
+    if (not update_device):
+        print('Failed to update user device id')
+
     return {
         'token': create_access_token(data.email),
         'name': user['name'],

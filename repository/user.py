@@ -7,8 +7,8 @@ from utils.auth import get_hashed_password
 
 
 class UserRepository():
-    async def get_user(self, name: str):
-        document = await collection_user.find_one({"name": name})
+    async def get_user(self, email: str):
+        document = await collection_user.find_one({"email": email})
         return document
 
     async def get_all_user(self):
