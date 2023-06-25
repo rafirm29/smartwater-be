@@ -4,7 +4,7 @@ from typing import List
 from repository.user import UserRepository
 from schemas.user import UserData, UserLogin, UserRegister, LoginResponse, UserChangeName
 from db.database import collection_user
-from utils.auth import verify_password, create_access_token
+from services.auth import verify_password, create_access_token
 from middleware.auth import get_current_user
 
 user = APIRouter(prefix='/user', tags=['User'])

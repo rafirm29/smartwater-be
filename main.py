@@ -1,14 +1,10 @@
 import asyncio
 import json
-import numpy as np
-from fastapi import FastAPI, WebSocket, Depends, Request, Response
+from fastapi import FastAPI, WebSocket, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from routes.routes import router
 from repository.pool import PoolRepository
-from services.ml import interpreter
-from schemas.notification import Notification
-from utils.notification import send_notification
 
 app = FastAPI()
 

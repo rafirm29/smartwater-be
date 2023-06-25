@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends, Request, Response
-from typing import List
 import json
 import numpy as np
 
 from repository.user import UserRepository
 from services.ml import interpreter
 from schemas.notification import Notification
-from utils.notification import send_notification
+from services.notification import send_notification
 
 
 antares = APIRouter(prefix='/antares', tags=['Antares'])

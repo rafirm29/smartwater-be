@@ -1,9 +1,8 @@
 from db.database import collection_user
 from models.user import User
 from schemas.user import UserRegister
-from bson.json_util import loads
 
-from utils.auth import get_hashed_password
+from services.auth import get_hashed_password
 
 
 class UserRepository():
