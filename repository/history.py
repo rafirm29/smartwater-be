@@ -34,3 +34,10 @@ class HistoryRepository():
             history = History(pool_id=pool_id, data=[data])
             await collection_history.insert_one(history.dict())
             return history
+
+    async def get_15_latest_data(self, pool_id):
+        history = await collection_history.find_one({'pool_id': pool_id})
+        if history:
+            data = history['data']
+            return data[-15:]
+        return []
