@@ -5,6 +5,7 @@ import numpy as np
 from repository.user import UserRepository
 from repository.history import HistoryRepository
 from services.ml import interpreter
+from models.history import DataPoint
 from schemas.notification import Notification
 from services.notification import send_notification
 from services.recommendation import get_recommendation
@@ -61,8 +62,12 @@ async def receive_sensor_data(user_email: str, request: Request, user_repo: User
         output_details = interpreter.get_output_details()
 
         # Prepare input data
+        # Insert latest sensor dara
+        new_record = DataPoint(ph=latest_ph, temperature=latest_temp)
+
+        await history_repo.add_record("6496a55d73845826da0f1069", new_record)
         # Get 15 latest data
-        history_data = await history_repo.get_15_latest_data("64900a4ad1fbe076bfb6e9c9")
+        history_data = await history_repo.get_15_latest_data("6496a55d73845826da0f1069")
 
         temperatures = [entry['temperature'] for entry in history_data]
         ph_values = [entry['ph'] for entry in history_data]
