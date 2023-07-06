@@ -26,13 +26,21 @@ def home():
     return {"data": "hello"}
 
 
-async def get_dummy_data(data):
-    return json.dumps(data)
+async def send_data_periodically(websocket: WebSocket, pool_id):
+    try:
+        while True:
+            await websocket.send_text("This is data sent every 10 secs")
+            await asyncio.sleep(10)  # Sleep for 10 secs
+    except asyncio.CancelledError:
+        pass
 
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket, pool_repo: PoolRepository = Depends(PoolRepository)):
     await websocket.accept()
+    client_id = id(websocket)
+    print(
+        f"Client connected. Client ID: {client_id}. Waiting to receive pool_id...")
     pool_id = await websocket.receive_text()
     pool_data = await pool_repo.get_pool_by_id(pool_id)
 
@@ -41,9 +49,17 @@ async def websocket_endpoint(websocket: WebSocket, pool_repo: PoolRepository = D
         await websocket.close()
         return
 
-    sensor_data = pool_data["sensor"]
+    try:
+        # Start the periodic sending coroutine
+        print(f"Pool id received. Sending periodic data...")
+        send_task = asyncio.create_task(
+            send_data_periodically(websocket, pool_id))
 
-    while True:
-        result = await get_dummy_data(sensor_data)
-        await websocket.send_text(f"Results: {result}")
-        await asyncio.sleep(10)
+        while True:
+            data = await websocket.receive_text()
+            await websocket.send_text(f"You said: {data}")
+    except Exception as e:
+        print(f"Client ID {client_id} disconnected. Reason: {str(e)}")
+    finally:
+        # Cancel the periodic sending coroutine when the client disconnects
+        send_task.cancel()
