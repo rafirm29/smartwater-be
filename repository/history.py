@@ -41,3 +41,10 @@ class HistoryRepository():
             data = history['data']
             return data[-15:]
         return []
+
+    async def get_latest_data(self, pool_id):
+        history = await collection_history.find_one({'pool_id': pool_id})
+        if history:
+            data = history['data']
+            return data[-1]
+        return []

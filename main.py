@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routes.routes import router
 from repository.pool import PoolRepository
+from repository.history import HistoryRepository
 
 app = FastAPI()
 
@@ -22,7 +23,12 @@ app.include_router(router)
 
 
 @app.get('/')
-def home():
+async def home(history_repo: HistoryRepository = Depends(HistoryRepository)):
+    latest_data = await history_repo.get_latest_data("6496a55d73845826da0f1069")
+    new_dict = {key: value for key, value in latest_data.items() if key in [
+        'temperature', 'ph']}
+    json_string = json.dumps(new_dict)
+    print(json_string)
     return {"data": "hello"}
 
 
@@ -36,7 +42,7 @@ async def send_data_periodically(websocket: WebSocket, pool_id):
 
 
 @app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket, pool_repo: PoolRepository = Depends(PoolRepository)):
+async def websocket_endpoint(websocket: WebSocket, pool_repo: PoolRepository = Depends(PoolRepository), history_repo: HistoryRepository = Depends(HistoryRepository)):
     await websocket.accept()
     client_id = id(websocket)
     print(
@@ -50,16 +56,12 @@ async def websocket_endpoint(websocket: WebSocket, pool_repo: PoolRepository = D
         return
 
     try:
-        # Start the periodic sending coroutine
-        print(f"Pool id received. Sending periodic data...")
-        send_task = asyncio.create_task(
-            send_data_periodically(websocket, pool_id))
-
         while True:
-            data = await websocket.receive_text()
-            await websocket.send_text(f"You said: {data}")
+            latest_data = await history_repo.get_latest_data(pool_id)
+            data_dict = {key: value for key, value in latest_data.items() if key in [
+                'temperature', 'ph']}
+            data_stringified = json.dumps(data_dict)
+            await websocket.send_text(data_stringified)
+            await asyncio.sleep(900)  # Interval 15 minutes
     except Exception as e:
         print(f"Client ID {client_id} disconnected. Reason: {str(e)}")
-    finally:
-        # Cancel the periodic sending coroutine when the client disconnects
-        send_task.cancel()
