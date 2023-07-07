@@ -9,16 +9,15 @@ class PoolData(BaseModel):
     name: str
     status: StatusEnum
     anomaly: List[Anomaly]
-    sensor: List[str]
 
 
 class AddPool(BaseModel):
+    id: str
     name: str
-    sensor: List[str]
 
 
-class AddSensor(BaseModel):
-    sensor: List[str]
+# class AddSensor(BaseModel):
+#     sensor: List[str]
 
 
 class UpdatePoolName(BaseModel):

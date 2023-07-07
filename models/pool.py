@@ -22,12 +22,11 @@ class Anomaly(BaseModel):
 
 
 class Pool(BaseModel):
-    id: str = Field(default_factory=ObjectId, alias='_id')
+    id: str
     user_email: str
     name: str
     status: StatusEnum = Field(default=StatusEnum.NORMAL)
     anomaly: Optional[List[Anomaly]] = []
-    sensor: List[str] = []
 
     class Config:
         arbitrary_types_allowed = True

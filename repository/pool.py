@@ -18,8 +18,6 @@ class PoolRepository():
         pool_obj = Pool(**pool)
         pool_doc = pool_obj.dict(by_alias=True)
 
-        # Convert _id to id
-        pool_doc['id'] = str(pool_doc.pop('_id'))
         await collection_pool.insert_one(pool_doc)
 
         return pool_doc
