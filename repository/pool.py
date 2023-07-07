@@ -42,6 +42,22 @@ class PoolRepository():
             return True
         return False
 
+    async def add_anomaly(self, pool_id: str, param: str, action: str, status):
+        pool = await collection_pool.find_one({"id": pool_id})
+        if pool:
+            existing_data = next(
+                (d for d in pool['anomaly'] if d['sensor_type'] == param), None)
+            if existing_data:
+                existing_data['action'] = action
+            else:
+                new_data = {"sensor_type": param, "action": action}
+                pool['anomaly'].append(new_data)
+            pool['status'] = status
+            collection_pool.replace_one({"id": pool_id}, pool)
+            print('anomaly')
+            return True
+        return False
+
     async def set_normal(self, pool: Pool):
         update_result = await collection_pool.update_one(
             {'id': pool['id']},

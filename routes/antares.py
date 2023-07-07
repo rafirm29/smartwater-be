@@ -3,6 +3,7 @@ import json
 import numpy as np
 
 from repository.user import UserRepository
+from repository.pool import PoolRepository
 from repository.history import HistoryRepository
 from services.ml import interpreter
 from models.history import DataPoint
@@ -13,9 +14,11 @@ from services.recommendation import get_recommendation
 
 antares = APIRouter(prefix='/antares', tags=['Antares'])
 
+pool_id_global = "6496a55d73845826da0f1069"
+
 
 @antares.post('/{user_email}')
-async def receive_sensor_data(user_email: str, request: Request, user_repo: UserRepository = Depends(UserRepository), history_repo: HistoryRepository = Depends(HistoryRepository)):
+async def receive_sensor_data(user_email: str, request: Request, user_repo: UserRepository = Depends(UserRepository), pool_repo: PoolRepository = Depends(PoolRepository), history_repo: HistoryRepository = Depends(HistoryRepository)):
     # Decode request body
     # TODO: Integrate antares body request
     body = await request.body()
@@ -44,6 +47,8 @@ async def receive_sensor_data(user_email: str, request: Request, user_repo: User
             response_notif = send_notification(user['device_id'], Notification(
                 title='Anomali kolam: pH', body=recommendation['ph']))
 
+            await pool_repo.add_anomaly(pool_id_global, 'ph', recommendation['ph'], 'danger')
+
             if (response_notif.status_code != 200):
                 print('Failed to send notification')
                 print(response_notif.json())
@@ -51,6 +56,8 @@ async def receive_sensor_data(user_email: str, request: Request, user_repo: User
         if recommendation['temp']:
             response_notif = send_notification(user['device_id'], Notification(
                 title='Anomali kolam: temperatur', body=recommendation['temp']))
+
+            await pool_repo.add_anomaly(pool_id_global, 'temperature', recommendation['temp'], 'danger')
 
             if (response_notif.status_code != 200):
                 print('Failed to send notification')
@@ -65,9 +72,9 @@ async def receive_sensor_data(user_email: str, request: Request, user_repo: User
         # Insert latest sensor dara
         new_record = DataPoint(ph=latest_ph, temperature=latest_temp)
 
-        await history_repo.add_record("6496a55d73845826da0f1069", new_record)
+        await history_repo.add_record(pool_id_global, new_record)
         # Get 15 latest data
-        history_data = await history_repo.get_15_latest_data("6496a55d73845826da0f1069")
+        history_data = await history_repo.get_15_latest_data(pool_id_global)
 
         temperatures = [entry['temperature'] for entry in history_data]
         ph_values = [entry['ph'] for entry in history_data]
@@ -103,6 +110,8 @@ async def receive_sensor_data(user_email: str, request: Request, user_repo: User
             response_notif = send_notification(user['device_id'], Notification(
                 title='Prediksi anomali kolam: pH', body=recommendation_pred['ph'] + ' dalam 15 menit'))
 
+            await pool_repo.add_anomaly(pool_id_global, 'ph', recommendation_pred['ph'] + ' dalam 15 menit', 'warning')
+
             if (response_notif.status_code != 200):
                 print('Failed to send notification')
                 print(response_notif.json())
@@ -110,6 +119,8 @@ async def receive_sensor_data(user_email: str, request: Request, user_repo: User
         if (not recommendation['temp'] and recommendation_pred['temp']):
             response_notif = send_notification(user['device_id'], Notification(
                 title='Prediksi anomali kolam: temperatur', body=recommendation_pred['temp'] + ' dalam 15 menit'))
+
+            await pool_repo.add_anomaly(pool_id_global, 'temperature', recommendation_pred['temp'] + ' dalam 15 menit', 'warning')
 
             if (response_notif.status_code != 200):
                 print('Failed to send notification')
