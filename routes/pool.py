@@ -85,12 +85,32 @@ async def set_pool_normal(pool_id: str, user: UserData = Depends(get_current_use
 
     if pool['user_email'] != user['email']:
         raise HTTPException(
-            401, f"You are not authenticated to update this pool")
+            403, f"You are not authorized to update this pool")
 
     response = await pool_repo.set_normal(pool)
 
     if response:
         return {
             'message': f"Successfully done action to pool"
+        }
+    raise HTTPException(status_code=400, detail='Failed to do action to pool')
+
+
+@pool.delete('/{pool_id}/delete')
+async def delete_pool(pool_id: str, user: UserData = Depends(get_current_user), pool_repo: PoolRepository = Depends(PoolRepository)):
+    pool = await pool_repo.get_pool_by_id(pool_id)
+
+    if pool is None:
+        raise HTTPException(404, f"No pool found. Invalid pool id")
+
+    if pool['user_email'] != user['email']:
+        raise HTTPException(
+            403, f"You are not authorized to delete this pool")
+
+    response = await pool_repo.remove_pool(pool['id'])
+
+    if response:
+        return {
+            'message': f"Successfully deleted pool"
         }
     raise HTTPException(status_code=400, detail='Failed to do action to pool')

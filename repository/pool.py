@@ -51,3 +51,9 @@ class PoolRepository():
         if update_result:
             return True
         return False
+
+    async def remove_pool(self, pool_id):
+        result = await collection_pool.delete_one({"id": pool_id})
+        if result.deleted_count == 1:
+            return True
+        return False
