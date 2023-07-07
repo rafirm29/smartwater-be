@@ -65,7 +65,7 @@ async def change_pool_name(pool_id: str, new_name: UpdatePoolName, user: UserDat
 
     if pool['user_email'] != user['email']:
         raise HTTPException(
-            401, f"You are not authenticated to update this pool")
+            403, f"You are not authorized to update this pool")
 
     response = await pool_repo.update_name(pool, new_name.name)
 

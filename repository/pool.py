@@ -45,7 +45,7 @@ class PoolRepository():
     async def set_normal(self, pool: Pool):
         update_result = await collection_pool.update_one(
             {'id': pool['id']},
-            {"$set": {"anomaly": []}}
+            {"$set": {"anomaly": [], "status": "normal"}}
         )
 
         if update_result:
