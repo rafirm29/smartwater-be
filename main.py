@@ -24,11 +24,11 @@ app.include_router(router)
 
 @app.get('/')
 async def home(history_repo: HistoryRepository = Depends(HistoryRepository)):
-    latest_data = await history_repo.get_latest_data("6496a55d73845826da0f1069")
-    new_dict = {key: value for key, value in latest_data.items() if key in [
-        'temperature', 'ph']}
-    json_string = json.dumps(new_dict)
-    print(json_string)
+    # latest_data = await history_repo.get_latest_data("6496a55d73845826da0f1069")
+    # new_dict = {key: value for key, value in latest_data.items() if key in [
+    #     'temperature', 'ph']}
+    # json_string = json.dumps(new_dict)
+    # print(json_string)
     return {"data": "hello"}
 
 
