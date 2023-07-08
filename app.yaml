@@ -1,16 +1,2 @@
-Deploy FastAPI app on Google Cloud Platform
-Post author:Navule Pavan Kumar Rao
-Post category:Cloud / FastAPI / GCP / Python
-Post comments:4 Comments
-Post last modified:October 11, 2022
-Reading time:16 mins read
-In this tutorial we will see how to deploy a FastAPI app on GCP App Engine. The tutorial will give a detailed walk through on how to create an app on Google Cloud Platform and deploy a FastAPI application implemented in python. By the end of tutorial you will learn how to deploy FastAPI app on Google Cloud Platform.
-
-Deploy a FastAPI app on Google Cloud App Engine – TutLinks
-Deploy a FastAPI app on Google Cloud App Engine – TutLinks
-Table of Contents
-Prerequisites
-YAML Configuration to deploy FastAPI on Google App Engine
-Project Setup
 runtime: python310
 entrypoint: gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
