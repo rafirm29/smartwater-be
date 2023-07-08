@@ -27,8 +27,12 @@ async def receive_sensor_data(user_email: str, request: Request, user_repo: User
         print('No request body found')
         return Response(status_code=200)
 
+    print("-- Body --")
+    print(body)
     # Check for body params
     json_body = json.loads(body.decode('utf-8'))
+    print("-- JSON Body --")
+    print(json_body)
     if (not json_body['ph']) or (not json_body['temp']):
         print('No required fields found')
         return Response(status_code=200)
