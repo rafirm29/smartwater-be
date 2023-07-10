@@ -10,7 +10,7 @@ import google.auth.transport.requests as google_request
 
 def get_google_access_token(json_keyfile_path):
     credentials = service_account.Credentials.from_service_account_file(
-        json_keyfile_path,
+        f"./{json_keyfile_path}",
         scopes=["https://www.googleapis.com/auth/firebase.messaging"],
     )
     request = google_request.Request()

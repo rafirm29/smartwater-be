@@ -20,25 +20,45 @@ pool_id_global = "6496a55d73845826da0f1069"
 @antares.post('/{user_email}')
 async def receive_sensor_data(user_email: str, request: Request, user_repo: UserRepository = Depends(UserRepository), pool_repo: PoolRepository = Depends(PoolRepository), history_repo: HistoryRepository = Depends(HistoryRepository)):
     # Decode request body
-    # TODO: Integrate antares body request
     body = await request.body()
 
     if not body:
         print('No request body found')
         return Response(status_code=200)
 
-    print("-- Body --")
-    print(body)
     # Check for body params
     json_body = json.loads(body.decode('utf-8'))
     print("-- JSON Body --")
     print(json_body)
-    if (not json_body['ph']) or (not json_body['temp']):
-        print('No required fields found')
+    # if not ('ph' in json_body and 'temp' in json_body):
+    #     print('No required fields found')
+    #     return Response(status_code=200)
+    latest_ph = None
+    latest_temp = None
+
+    if not ('m2m:sgn' in json_body and 'm2m:nev' in json_body['m2m:sgn'] and 'm2m:rep' in json_body['m2m:sgn']['m2m:nev'] and 'm2m:cin' in json_body['m2m:sgn']['m2m:nev']['m2m:rep'] and 'con' in json_body['m2m:sgn']['m2m:nev']['m2m:rep']['m2m:cin']):
+        # One or more required keys are missing
+        print("One or more required keys are missing to access the 'data' key.")
         return Response(status_code=200)
 
-    latest_ph = float(json_body['ph'])
-    latest_temp = float(json_body['temp'])
+    raw_data = json_body['m2m:sgn']['m2m:nev']['m2m:rep']['m2m:cin']['con']['data']
+
+    data_list = raw_data.split(",")
+
+    data_dict = {
+        "temperature": float(data_list[0]),
+        "do": float(data_list[1]),
+        "turbidity": float(data_list[2]),
+        "ph": float(data_list[3]),
+        "temperature_air": float(data_list[4]),
+        "humidity": float(data_list[5]),
+        "volt_battery": float(data_list[6]),
+        "volt_solar": float(data_list[7]),
+        "tds": float(data_list[8])
+    }
+
+    latest_ph = float(data_dict['ph'])
+    latest_temp = float(data_dict['temperature'])
 
     user = await user_repo.get_user(user_email)
 
@@ -74,11 +94,11 @@ async def receive_sensor_data(user_email: str, request: Request, user_repo: User
 
         # Prepare input data
         # Insert latest sensor dara
-        new_record = DataPoint(ph=latest_ph, temperature=latest_temp)
+        new_record = DataPoint(**data_dict)
 
         await history_repo.add_record(pool_id_global, new_record)
         # Get 15 latest data
-        history_data = await history_repo.get_15_latest_data(pool_id_global)
+        history_data = await history_repo.get_70_latest_data(pool_id_global)
 
         temperatures = [entry['temperature'] for entry in history_data]
         ph_values = [entry['ph'] for entry in history_data]
@@ -86,7 +106,6 @@ async def receive_sensor_data(user_email: str, request: Request, user_repo: User
         # Create a NumPy 2-dimensional array
         input_data = np.column_stack((temperatures, ph_values))
         input_data = input_data.astype(np.float32)
-        print(input_data)
 
         # Set input tensor
         interpreter.set_tensor(
